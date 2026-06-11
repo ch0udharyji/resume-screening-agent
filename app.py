@@ -12,9 +12,12 @@ import os
 import json
 import streamlit as st
 import anthropic
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # The model the agent uses. You can swap this for any Claude model string.
-MODEL = "claude-sonnet-4-20250514"
+MODEL = "claude-3-5-sonnet-latest"
 
 # ---- Page setup -------------------------------------------------------------
 st.set_page_config(page_title="Resume Screening Agent", page_icon="📄", layout="centered")
