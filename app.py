@@ -9,10 +9,17 @@ Run locally with:  streamlit run app.py
 """
 
 import os
+import sys
 import json
 import streamlit as st
+import streamlit.runtime
 import anthropic
 from dotenv import load_dotenv
+
+if not streamlit.runtime.exists():
+    print("❌ Error: Streamlit apps cannot be run directly with python.")
+    print("👉 Please run this app using: streamlit run app.py")
+    sys.exit(1)
 
 load_dotenv()
 
