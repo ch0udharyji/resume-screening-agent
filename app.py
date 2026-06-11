@@ -147,15 +147,40 @@ with col_key:
                             help=f"{help_text} It is not stored anywhere.")
 
 # ---- Inputs -----------------------------------------------------------------
-tab_resume, tab_job = st.tabs(["📝 Candidate Resume", "💼 Job Description"])
+tab_resume, tab_job = st.tabs(["Candidate Resume", "Job Description"])
 
 with tab_resume:
     resume_input_method = st.radio("How would you like to provide the resume?", ("Upload File", "Manual Paste"), key="resume_method", horizontal=True)
     resume = ""
     if resume_input_method == "Upload File":
-        resume_file = st.file_uploader("Upload Resume", type=["pdf", "docx", "txt"], accept_multiple_files=False)
-        if resume_file is not None:
-            resume = extract_text_from_file(resume_file)
+        if "resume_file_error" in st.session_state:
+            st.error(st.session_state.resume_file_error)
+            del st.session_state.resume_file_error
+            
+        if "resume_text" not in st.session_state:
+            st.session_state.resume_text = ""
+        if "resume_name" not in st.session_state:
+            st.session_state.resume_name = ""
+            
+        if not st.session_state.resume_text:
+            st.info("Supported formats: PDF, DOCX, TXT. Max file size: 5MB.")
+            resume_file = st.file_uploader("Upload Resume", type=["pdf", "docx", "txt"], accept_multiple_files=False, key="resume_uploader")
+            if resume_file is not None:
+                if resume_file.size > 5 * 1024 * 1024:
+                    st.session_state.resume_file_error = "File cannot be imported because it is above 5MB."
+                    del st.session_state["resume_uploader"]
+                    st.rerun()
+                else:
+                    st.session_state.resume_text = extract_text_from_file(resume_file)
+                    st.session_state.resume_name = resume_file.name
+                    st.rerun()
+        else:
+            st.success(f"Uploaded: {st.session_state.resume_name}")
+            resume = st.session_state.resume_text
+            if st.button("Remove Resume"):
+                st.session_state.resume_text = ""
+                st.session_state.resume_name = ""
+                st.rerun()
     else:
         resume = st.text_area("Paste the resume / CV here", height=150, placeholder="Candidate's resume text...", label_visibility="collapsed")
 
@@ -163,9 +188,34 @@ with tab_job:
     job_input_method = st.radio("How would you like to provide the job description?", ("Manual Paste", "Upload File"), key="job_method", horizontal=True)
     job_desc = ""
     if job_input_method == "Upload File":
-        job_file = st.file_uploader("Upload Job Description", type=["pdf", "docx", "txt"], accept_multiple_files=False)
-        if job_file is not None:
-            job_desc = extract_text_from_file(job_file)
+        if "job_file_error" in st.session_state:
+            st.error(st.session_state.job_file_error)
+            del st.session_state.job_file_error
+            
+        if "job_text" not in st.session_state:
+            st.session_state.job_text = ""
+        if "job_name" not in st.session_state:
+            st.session_state.job_name = ""
+            
+        if not st.session_state.job_text:
+            st.info("Supported formats: PDF, DOCX, TXT. Max file size: 5MB.")
+            job_file = st.file_uploader("Upload Job Description", type=["pdf", "docx", "txt"], accept_multiple_files=False, key="job_uploader")
+            if job_file is not None:
+                if job_file.size > 5 * 1024 * 1024:
+                    st.session_state.job_file_error = "File cannot be imported because it is above 5MB."
+                    del st.session_state["job_uploader"]
+                    st.rerun()
+                else:
+                    st.session_state.job_text = extract_text_from_file(job_file)
+                    st.session_state.job_name = job_file.name
+                    st.rerun()
+        else:
+            st.success(f"Uploaded: {st.session_state.job_name}")
+            job_desc = st.session_state.job_text
+            if st.button("Remove Job Description"):
+                st.session_state.job_text = ""
+                st.session_state.job_name = ""
+                st.rerun()
     else:
         job_desc = st.text_area("Paste the job description here", height=150, placeholder="The role's requirements...", label_visibility="collapsed")
 
@@ -252,6 +302,6 @@ if st.button("Screen the Candidate", type="primary", use_container_width=True):
 
 # If we have a successful result in session_state, show the View Analysis button
 if "analysis_result" in st.session_state:
-    st.success("✅ The agent has finished reviewing the candidate.")
+    st.success("The agent has finished reviewing the candidate.")
     if st.button("View Analysis", use_container_width=True):
         show_analysis_modal(st.session_state["analysis_result"])
