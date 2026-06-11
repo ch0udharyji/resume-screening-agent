@@ -1,7 +1,7 @@
 # Resume Screening Agent
 An AI agent that compares a candidate's resume against a job description, scores
 the fit out of 100, lists matched and missing skills, and suggests how to close
-the gaps. Built with Python, Streamlit, and the Anthropic API.
+the gaps. Built with Python, Streamlit, and supports Anthropic Claude, OpenAI, and Google Gemini APIs.
 ![screenshot placeholder — add a screenshot of the app here]
 What it does
 
@@ -30,4 +30,4 @@ Run the app:
 Paste your API key into the app, add a resume and a job description, and click Screen the candidate.
 
 Tech stack
-Python · Streamlit · Anthropic API
+Python · Streamlit · Anthropic API · OpenAI API · Google Gemini API
