@@ -114,7 +114,4 @@ if st.button("Screen the candidate", type="primary"):
         except Exception as e:
             st.error(f"Something went wrong: {e}")
 
-if __name__ == "__main__":
-    import sys
-    import subprocess
-    subprocess.run([sys.executable, "-m", "streamlit", "run", sys.argv[0]] + sys.argv[1:])
+
