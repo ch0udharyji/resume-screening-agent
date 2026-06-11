@@ -24,28 +24,9 @@ if not streamlit.runtime.exists():
 load_dotenv()
 
 # ---- Page setup -------------------------------------------------------------
-st.set_page_config(page_title="Resume Screening Agent", layout="centered")
+st.set_page_config(page_title="Resume Screening Agent", layout="wide")
 st.title("Resume Screening Agent")
 st.caption("Compares a resume against a job description — scores the fit and flags the gaps.")
-
-# ---- AI Provider & API key --------------------------------------------------
-provider = st.selectbox("Select AI Provider", ["Anthropic (Claude)", "OpenAI (GPT-4o)", "Google (Gemini)"])
-
-if provider == "Anthropic (Claude)":
-    env_api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    key_label = "Your Anthropic API key"
-    help_text = "Get one at console.anthropic.com."
-elif provider == "OpenAI (GPT-4o)":
-    env_api_key = os.environ.get("OPENAI_API_KEY", "")
-    key_label = "Your OpenAI API key"
-    help_text = "Get one at platform.openai.com."
-else:
-    env_api_key = os.environ.get("GEMINI_API_KEY", "")
-    key_label = "Your Google Gemini API key"
-    help_text = "Get one at aistudio.google.com."
-
-api_key = st.text_input(key_label, value=env_api_key, type="password",
-                        help=f"{help_text} It is not stored anywhere.")
 
 # ---- Helper Function --------------------------------------------------------
 def extract_text_from_file(uploaded_file):
@@ -73,31 +54,6 @@ def extract_text_from_file(uploaded_file):
         text = uploaded_file.getvalue().decode("utf-8")
     return text
 
-# ---- Inputs -----------------------------------------------------------------
-st.subheader("Candidate Information")
-resume_input_method = st.radio("How would you like to provide the resume?", ("Upload File", "Manual Paste"), key="resume_method")
-
-resume = ""
-if resume_input_method == "Upload File":
-    st.info("Supported formats: PDF, DOCX, TXT. Max file size: 5MB.")
-    resume_file = st.file_uploader("Upload Resume", type=["pdf", "docx", "txt"], accept_multiple_files=False)
-    if resume_file is not None:
-        resume = extract_text_from_file(resume_file)
-else:
-    resume = st.text_area("Paste the resume / CV here", height=200, placeholder="Candidate's resume text...")
-
-st.subheader("Job Description")
-job_input_method = st.radio("How would you like to provide the job description?", ("Manual Paste", "Upload File"), key="job_method")
-
-job_desc = ""
-if job_input_method == "Upload File":
-    st.info("Supported formats: PDF, DOCX, TXT. Max file size: 5MB.")
-    job_file = st.file_uploader("Upload Job Description", type=["pdf", "docx", "txt"], accept_multiple_files=False)
-    if job_file is not None:
-        job_desc = extract_text_from_file(job_file)
-else:
-    job_desc = st.text_area("Paste the job description here", height=200, placeholder="The role's requirements...")
-
 # ---- The agent's instructions -----------------------------------------------
 PROMPT = """You are an expert technical recruiter. Compare the candidate's resume \
 against the job description and assess how well they fit.
@@ -119,110 +75,170 @@ JOB DESCRIPTION:
 {job_desc}
 """
 
-# ---- Run --------------------------------------------------------------------
-if st.button("Screen the candidate", type="primary"):
-    if not api_key or not resume.strip() or not job_desc.strip():
-        missing = []
-        if not api_key:
-            missing.append("API key")
-        if not resume.strip():
-            missing.append("resume")
-        if not job_desc.strip():
-            missing.append("job description")
-            
-        if len(missing) == 1:
-            msg = f"Please add your {missing[0]} first."
-        elif len(missing) == 2:
-            msg = f"Please add your {missing[0]} and {missing[1]} first."
-        else:
-            msg = "Please add your API key, resume, and job description first."
-        st.warning(msg)
+main_col1, main_col2 = st.columns([1, 1], gap="large")
+
+with main_col1:
+    st.header("1. Configuration & Inputs")
+    
+    # ---- AI Provider & API key --------------------------------------------------
+    provider = st.selectbox("Select AI Provider", ["Anthropic (Claude)", "OpenAI (GPT-4o)", "Google (Gemini)"])
+    
+    if provider == "Anthropic (Claude)":
+        env_api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        key_label = "Your Anthropic API key"
+        help_text = "Get one at console.anthropic.com."
+    elif provider == "OpenAI (GPT-4o)":
+        env_api_key = os.environ.get("OPENAI_API_KEY", "")
+        key_label = "Your OpenAI API key"
+        help_text = "Get one at platform.openai.com."
     else:
-        try:
-            with st.spinner("The agent is reading both documents..."):
-                prompt_text = PROMPT.format(resume=resume, job_desc=job_desc)
+        env_api_key = os.environ.get("GEMINI_API_KEY", "")
+        key_label = "Your Google Gemini API key"
+        help_text = "Get one at aistudio.google.com."
+    
+    api_key = st.text_input(key_label, value=env_api_key, type="password",
+                            help=f"{help_text} It is not stored anywhere.")
+
+    st.markdown("---")
+    
+    # ---- Inputs -----------------------------------------------------------------
+    st.subheader("Candidate Information")
+    resume_input_method = st.radio("How would you like to provide the resume?", ("Upload File", "Manual Paste"), key="resume_method", horizontal=True)
+    
+    resume = ""
+    if resume_input_method == "Upload File":
+        st.info("Supported formats: PDF, DOCX, TXT. Max file size: 5MB.")
+        resume_file = st.file_uploader("Upload Resume", type=["pdf", "docx", "txt"], accept_multiple_files=False)
+        if resume_file is not None:
+            resume = extract_text_from_file(resume_file)
+    else:
+        resume = st.text_area("Paste the resume / CV here", height=150, placeholder="Candidate's resume text...")
+    
+    st.markdown("---")
+
+    st.subheader("Job Description")
+    job_input_method = st.radio("How would you like to provide the job description?", ("Manual Paste", "Upload File"), key="job_method", horizontal=True)
+    
+    job_desc = ""
+    if job_input_method == "Upload File":
+        st.info("Supported formats: PDF, DOCX, TXT. Max file size: 5MB.")
+        job_file = st.file_uploader("Upload Job Description", type=["pdf", "docx", "txt"], accept_multiple_files=False)
+        if job_file is not None:
+            job_desc = extract_text_from_file(job_file)
+    else:
+        job_desc = st.text_area("Paste the job description here", height=150, placeholder="The role's requirements...")
+    
+    st.markdown("---")
+    screen_clicked = st.button("Screen the Candidate", type="primary", use_container_width=True)
+
+
+with main_col2:
+    st.header("2. Analysis Results")
+    
+    if screen_clicked:
+        if not api_key or not resume.strip() or not job_desc.strip():
+            missing = []
+            if not api_key:
+                missing.append("API key")
+            if not resume.strip():
+                missing.append("resume")
+            if not job_desc.strip():
+                missing.append("job description")
                 
-                if provider == "Anthropic (Claude)":
-                    client = anthropic.Anthropic(api_key=api_key)
-                    message = client.messages.create(
-                        model="claude-3-5-sonnet-latest",
-                        max_tokens=1500,
-                        messages=[{"role": "user", "content": prompt_text}],
-                    )
-                    raw = message.content[0].text.strip()
+            if len(missing) == 1:
+                msg = f"Please add your {missing[0]} first."
+            elif len(missing) == 2:
+                msg = f"Please add your {missing[0]} and {missing[1]} first."
+            else:
+                msg = "Please add your API key, resume, and job description first."
+            st.warning(msg)
+        else:
+            try:
+                with st.spinner("The agent is reading both documents..."):
+                    prompt_text = PROMPT.format(resume=resume, job_desc=job_desc)
                     
-                elif provider == "OpenAI (GPT-4o)":
-                    import openai
-                    client = openai.OpenAI(api_key=api_key)
-                    response = client.chat.completions.create(
-                        model="gpt-4o",
-                        messages=[{"role": "user", "content": prompt_text}],
-                        response_format={"type": "json_object"}
-                    )
-                    raw = response.choices[0].message.content.strip()
-                    
-                else: # Google Gemini
-                    from google import genai
-                    client = genai.Client(api_key=api_key)
-                    response = client.models.generate_content(
-                        model='gemini-2.5-pro',
-                        contents=prompt_text,
-                    )
-                    raw = response.text.strip()
-
-                # Safety net: strip code fences if the model adds them.
-                if raw.startswith("```"):
-                    raw = raw.split("```")[1]
-                    if raw.startswith("json"):
-                        raw = raw[4:]
-                    raw = raw.strip()
-
-                result = json.loads(raw)
-
-            # ---- Display the result -----------------------------------------
-            score = result.get("fit_score", 0)
-            st.metric("Fit score", f"{score} / 100")
-            st.progress(score / 100)
-            st.subheader(result.get("verdict", ""))
-
-            tab1, tab2, tab3, tab4 = st.tabs(["Summary", "Matched Skills", "Missing Skills", "Gap Analysis"])
-            
-            with tab1:
-                st.info(result.get("summary", ""))
-            
-            with tab2:
+                    if provider == "Anthropic (Claude)":
+                        client = anthropic.Anthropic(api_key=api_key)
+                        message = client.messages.create(
+                            model="claude-3-5-sonnet-latest",
+                            max_tokens=1500,
+                            messages=[{"role": "user", "content": prompt_text}],
+                        )
+                        raw = message.content[0].text.strip()
+                        
+                    elif provider == "OpenAI (GPT-4o)":
+                        import openai
+                        client = openai.OpenAI(api_key=api_key)
+                        response = client.chat.completions.create(
+                            model="gpt-4o",
+                            messages=[{"role": "user", "content": prompt_text}],
+                            response_format={"type": "json_object"}
+                        )
+                        raw = response.choices[0].message.content.strip()
+                        
+                    else: # Google Gemini
+                        from google import genai
+                        client = genai.Client(api_key=api_key)
+                        response = client.models.generate_content(
+                            model='gemini-2.5-pro',
+                            contents=prompt_text,
+                        )
+                        raw = response.text.strip()
+    
+                    # Safety net: strip code fences if the model adds them.
+                    if raw.startswith("```"):
+                        raw = raw.split("```")[1]
+                        if raw.startswith("json"):
+                            raw = raw[4:]
+                        raw = raw.strip()
+    
+                    result = json.loads(raw)
+    
+                # ---- Display the result -----------------------------------------
+                score = result.get("fit_score", 0)
+                st.metric("Fit score", f"{score} / 100")
+                st.progress(score / 100)
+                st.subheader(result.get("verdict", ""))
+    
+                tab1, tab2, tab3, tab4 = st.tabs(["Summary", "Matched Skills", "Missing Skills", "Gap Analysis"])
+                
+                with tab1:
+                    st.info(result.get("summary", ""))
+                
+                with tab2:
+                    for s in result.get("matched_skills", []):
+                        st.markdown(f"- {s}")
+                        
+                with tab3:
+                    for s in result.get("missing_skills", []):
+                        st.markdown(f"- {s}")
+                        
+                with tab4:
+                    for g in result.get("gaps", []):
+                        st.markdown(f"- {g}")
+    
+                # ---- Download Report --------------------------------------------
+                report_md = f"# Resume Screening Report\n\n**Fit Score**: {score} / 100\n**Verdict**: {result.get('verdict', '')}\n\n## Summary\n{result.get('summary', '')}\n\n## Matched Skills\n"
                 for s in result.get("matched_skills", []):
-                    st.markdown(f"- {s}")
-                    
-            with tab3:
+                    report_md += f"- {s}\n"
+                report_md += "\n## Missing Skills\n"
                 for s in result.get("missing_skills", []):
-                    st.markdown(f"- {s}")
-                    
-            with tab4:
+                    report_md += f"- {s}\n"
+                report_md += "\n## Gap Analysis\n"
                 for g in result.get("gaps", []):
-                    st.markdown(f"- {g}")
-
-            # ---- Download Report --------------------------------------------
-            report_md = f"# Resume Screening Report\n\n**Fit Score**: {score} / 100\n**Verdict**: {result.get('verdict', '')}\n\n## Summary\n{result.get('summary', '')}\n\n## Matched Skills\n"
-            for s in result.get("matched_skills", []):
-                report_md += f"- {s}\n"
-            report_md += "\n## Missing Skills\n"
-            for s in result.get("missing_skills", []):
-                report_md += f"- {s}\n"
-            report_md += "\n## Gap Analysis\n"
-            for g in result.get("gaps", []):
-                report_md += f"- {g}\n"
-
-            st.download_button(
-                label="Download Report (Markdown)",
-                data=report_md,
-                file_name="screening_report.md",
-                mime="text/markdown"
-            )
-
-        except json.JSONDecodeError:
-            st.error("The model did not return clean JSON. Try clicking the button again.")
-        except Exception as e:
-            st.error(f"Something went wrong: {e}")
-
-
+                    report_md += f"- {g}\n"
+    
+                st.download_button(
+                    label="Download Report (Markdown)",
+                    data=report_md,
+                    file_name="screening_report.md",
+                    mime="text/markdown",
+                    use_container_width=True
+                )
+    
+            except json.JSONDecodeError:
+                st.error("The model did not return clean JSON. Try clicking the button again.")
+            except Exception as e:
+                st.error(f"Something went wrong: {e}")
+    else:
+        st.info("Fill out the information on the left and click 'Screen the Candidate' to see the analysis.")
