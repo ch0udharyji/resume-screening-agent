@@ -1,4 +1,4 @@
-📄 Resume Screening Agent
+# Resume Screening Agent
 An AI agent that compares a candidate's resume against a job description, scores
 the fit out of 100, lists matched and missing skills, and suggests how to close
 the gaps. Built with Python, Streamlit, and the Anthropic API.

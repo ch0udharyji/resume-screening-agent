@@ -17,8 +17,8 @@ import anthropic
 from dotenv import load_dotenv
 
 if not streamlit.runtime.exists():
-    print("❌ Error: Streamlit apps cannot be run directly with python.")
-    print("👉 Please run this app using: streamlit run app.py")
+    print("[Error]: Streamlit apps cannot be run directly with python.")
+    print("[Info]: Please run this app using: streamlit run app.py")
     sys.exit(1)
 
 load_dotenv()
@@ -27,16 +27,15 @@ load_dotenv()
 MODEL = "claude-3-5-sonnet-latest"
 
 # ---- Page setup -------------------------------------------------------------
-st.set_page_config(page_title="Resume Screening Agent", page_icon="📄", layout="centered")
-st.title("📄 Resume Screening Agent")
+st.set_page_config(page_title="Resume Screening Agent", layout="centered")
+st.title("Resume Screening Agent")
 st.caption("Compares a resume against a job description — scores the fit and flags the gaps.")
 
 # ---- API key ----------------------------------------------------------------
-# Reads the key from an environment variable if set, otherwise asks for it.
-api_key = os.environ.get("ANTHROPIC_API_KEY")
-if not api_key:
-    api_key = st.text_input("Your Anthropic API key", type="password",
-                            help="Get one at console.anthropic.com. It is not stored anywhere.")
+# Reads the key from an environment variable if set, and populates the input field.
+env_api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+api_key = st.text_input("Your Anthropic API key", value=env_api_key, type="password",
+                        help="Get one at console.anthropic.com. It is not stored anywhere.")
 
 # ---- Inputs -----------------------------------------------------------------
 col1, col2 = st.columns(2)
@@ -101,19 +100,19 @@ if st.button("Screen the candidate", type="primary"):
 
             left, right = st.columns(2)
             with left:
-                st.markdown("**✅ Matched skills**")
+                st.markdown("**[+] Matched skills**")
                 for s in result.get("matched_skills", []):
                     st.markdown(f"- {s}")
             with right:
-                st.markdown("**⚠️ Missing skills**")
+                st.markdown("**[-] Missing skills**")
                 for s in result.get("missing_skills", []):
                     st.markdown(f"- {s}")
 
-            st.markdown("**🔧 Gaps and how to close them**")
+            st.markdown("**[*] Gaps and how to close them**")
             for g in result.get("gaps", []):
                 st.markdown(f"- {g}")
 
-            st.markdown("**📝 Summary**")
+            st.markdown("**Summary**")
             st.info(result.get("summary", ""))
 
         except json.JSONDecodeError:
