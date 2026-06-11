@@ -1,33 +1,69 @@
 # Resume Screening Agent
-An AI agent that compares a candidate's resume against a job description, scores
-the fit out of 100, lists matched and missing skills, and suggests how to close
-the gaps. Built with Python, Streamlit, and supports Anthropic Claude, OpenAI, and Google Gemini APIs.
+
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+An advanced AI-powered agent designed to streamline the recruitment process. It compares a candidate's resume against a job description, scores the fit out of 100, extracts matched and missing skills, and provides concrete gap-closing advice. 
+
+Built with Python and Streamlit, this tool is fully flexible and supports multiple top-tier LLMs including **Anthropic Claude**, **OpenAI GPT-4o**, and **Google Gemini**.
+
 ![screenshot placeholder — add a screenshot of the app here]
-What it does
 
-Takes a resume and a job description as input
-Uses an LLM with structured (JSON) output to score the match
-Returns: fit score, matched skills, missing skills, concrete gap-closing advice, and a summary
-Runs as a simple web app in the browser
+## Features
 
-Skills demonstrated
+- **Multi-Model Support**: Seamlessly switch between Anthropic (Claude), OpenAI (GPT), and Google (Gemini) APIs.
+- **Smart File Parsing**: Directly upload resumes and job descriptions as PDF, DOCX, or TXT files.
+- **Structured JSON Output**: Guarantees highly structured, deterministic gap analysis results.
+- **Exportable Reports**: Generate and download comprehensive Markdown reports of the screening analysis.
+- **Dynamic Error Handling**: Gracefully handles missing inputs and massive file uploads.
 
-LLM prompting with structured output
-Building an agent workflow (input → reasoning → structured result → UI)
-Streamlit app development
+## Technology Stack
 
-Run it locally
+- **Frontend**: Streamlit
+- **Backend**: Python 3
+- **LLM Integrations**: Anthropic SDK, OpenAI SDK, Google GenAI SDK
+- **Document Parsers**: `pypdf`, `python-docx`
 
-Install the dependencies:
+## Installation and Setup Guide
 
-   pip install -r requirements.txt
+### 1. Clone the repository
+```bash
+git clone https://github.com/the-mom-who-codes/resume-screening-agent.git
+cd resume-screening-agent
+```
 
-Get an API key from console.anthropic.com.
-Run the app:
+### 2. Create a virtual environment (Recommended)
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+```
 
-   streamlit run app.py
+### 3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
 
-Paste your API key into the app, add a resume and a job description, and click Screen the candidate.
+### 4. Configure Environment Variables
+Copy the example environment file and add your API keys:
+```bash
+cp .env.example .env
+```
+Open `.env` and insert your preferred API keys:
+```env
+ANTHROPIC_API_KEY=your_anthropic_api_key
+OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_gemini_api_key
+```
+*(Note: You only need to provide the key for the provider you intend to use. You can also paste the key directly in the web app UI).*
 
-Tech stack
-Python · Streamlit · Anthropic API · OpenAI API · Google Gemini API
+### 5. Run the Application
+Start the Streamlit server:
+```bash
+streamlit run app.py
+```
+Navigate to the provided Local URL (typically `http://localhost:8501`) in your browser to start screening!
+
+## License
+
+This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
