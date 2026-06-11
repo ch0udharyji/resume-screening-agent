@@ -80,7 +80,7 @@ resume_input_method = st.radio("How would you like to provide the resume?", ("Up
 resume = ""
 if resume_input_method == "Upload File":
     st.info("Supported formats: PDF, DOCX, TXT. Max file size: 5MB.")
-    resume_file = st.file_uploader("Upload Resume", type=["pdf", "docx", "txt"])
+    resume_file = st.file_uploader("Upload Resume", type=["pdf", "docx", "txt"], accept_multiple_files=False)
     if resume_file is not None:
         resume = extract_text_from_file(resume_file)
 else:
@@ -92,7 +92,7 @@ job_input_method = st.radio("How would you like to provide the job description?"
 job_desc = ""
 if job_input_method == "Upload File":
     st.info("Supported formats: PDF, DOCX, TXT. Max file size: 5MB.")
-    job_file = st.file_uploader("Upload Job Description", type=["pdf", "docx", "txt"])
+    job_file = st.file_uploader("Upload Job Description", type=["pdf", "docx", "txt"], accept_multiple_files=False)
     if job_file is not None:
         job_desc = extract_text_from_file(job_file)
 else:
