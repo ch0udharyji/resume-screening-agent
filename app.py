@@ -113,3 +113,9 @@ if st.button("Screen the candidate", type="primary"):
             st.error("The model did not return clean JSON. Try clicking the button again.")
         except Exception as e:
             st.error(f"Something went wrong: {e}")
+
+if __name__ == "__main__":
+    import sys
+    from streamlit.web import cli as stcli
+    sys.argv = ["streamlit", "run", sys.argv[0]]
+    sys.exit(stcli.main())
