@@ -23,16 +23,10 @@
 
 Resume Screening Agent streamlines recruitment by comparing a candidate's resume against a job description. It scores the overall fit out of 100, extracts matched and missing skills, and provides concrete, actionable advice on how to close the gap.
 
-Built with **Python** and **Streamlit**, the tool is provider-agnostic and supports multiple top-tier LLMs, including **Anthropic Claude**, **OpenAI GPT-4o**, and **Google Gemini** — switch between them at any time.
-
 <br>
 
 <div align="center">
-
-<img width="800" alt="Home page screenshot" src="" />
-
-*Add a screenshot of the home/upload page here*
-
+  <img width="800" alt="Home page screenshot" src="./screenshots/ss1.png" />
 </div>
 
 ---
