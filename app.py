@@ -116,6 +116,5 @@ if st.button("Screen the candidate", type="primary"):
 
 if __name__ == "__main__":
     import sys
-    from streamlit.web import cli as stcli
-    sys.argv = ["streamlit", "run", sys.argv[0]]
-    sys.exit(stcli.main())
+    import subprocess
+    subprocess.run([sys.executable, "-m", "streamlit", "run", sys.argv[0]] + sys.argv[1:])
